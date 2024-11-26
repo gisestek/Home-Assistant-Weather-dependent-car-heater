@@ -1,5 +1,5 @@
 # Home-Assistant-Weather-dependent-car-heater
-Introduction
+For some reason I could not get the automatic car heaters found online to work. While figuring out how they work, i decided to make my own with quite simple logic.
 
 ## First set up some helpers
 Create a time helper to set up your desired departure time:
@@ -31,6 +31,8 @@ This template helper sets time for the heater to shut off, whit included 30 minu
 {{ time_stop  }}
 ```
 Again, `input_datetime.lahtoaika` is your departure time helpers name.
+
+## Then few automations
 
 Create an automation that turns car heater on:
 ```yaml
