@@ -21,6 +21,13 @@ To set up the time when the heater should begin to warm up your car, create a te
 in this `state_attr('weather.forecast_koti','temperature'` is your outside temperature in degrees of celsius.
 `input_datetime.lahtoaika` is your departure time helpers name.
 Change accordingly if needed.
+Like this: if you have a temperature sensor like a ruuvitag
+```jinja2
+{% set time_start_delta = timedelta(minutes=((states('sensor.ruuvitag_2b8c_temperature') | float) -10)*5.5 | int) %}
+{% set time_departure = today_at(timedelta(hours=state_attr('input_datetime.lahtoaika', 'hour'), minutes=state_attr('input_datetime.lahtoaika', 'minute'))) %}
+{% set time_start = time_start_delta + time_departure %}
+{{ time_start }}
+```
 
 
 This template helper sets time for the heater to shut off, whit included 30 minutes delay if you are running late in the morning:
