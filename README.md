@@ -43,11 +43,9 @@ Change accordingly if needed.
 ```
 So:
 Let y represent time_start_delta in minutes, and x represent the temperature (states('number.viimeisin_ulkolampotila')).
-y=(x−10)⋅5.5
-y=(x−10)⋅5.5
-Key Points:
-x is the temperature (e.g., range of values like −20−20 to 4040).
-y is the time delta in minutes.
+![kuva](https://github.com/user-attachments/assets/a3ffc6c6-98de-4bc3-aa42-df3d7a5987de)
+So when it is 10 degrees plus, the heater doesn't get on at all, but at -15 it is on for 2 hours and 17,5 minutes
+
 
 After one morning when i didn't get temperature reading of the ruuvitag and it's value was "unavailable" i made a number helper (number.viimeisin_ulkolampotila) to store last known temperature. Extra added redundancy was implemented in the helper in form of few if-statements
 ```jinja2
