@@ -43,23 +43,18 @@ Again, `input_datetime.lahtoaika` is your departure time helpers name.
 
 Create an automation that turns car heater on:
 ```yaml
-alias: Auto lämpenee
-description: ""
+alias: Ford lämmityksen hallinta
+description: Controls the heating based on start and end times.
 triggers:
-  - trigger: time
-    at: sensor.heater_start_time
-  - trigger: state
-    entity_id:
-      - binary_sensor.auto1_heater_helper
-    to: "on"
+  - value_template: |
+      {{ now() >= as_datetime(states('sensor.ford_lammityksen_aloitus')) or
+         now() >= as_datetime(states('sensor.ford_lammitys_pois')) }}
+    trigger: template
 conditions:
-  - condition: state
-    entity_id: input_boolean.auton_lammityksen_ajastus_paalla
-    state: "on"
   - condition: or
     conditions:
       - condition: state
-        entity_id: input_boolean.only_weekdays
+        entity_id: input_boolean.ford_vain_arkipaivisin
         state: "off"
       - condition: time
         weekday:
@@ -69,40 +64,47 @@ conditions:
           - thu
           - fri
 actions:
-  - type: turn_on
-    device_id: 8230786f881a0cb5c19de5507a45dd80
-    entity_id: f4f0421d354b4f28c32ef492ea565100
-    domain: switch
-mode: single
-```
+  - choose:
+      - conditions:
+          - condition: template
+            value_template: >
+              {{ now() >= as_datetime(states('sensor.ford_lammityksen_aloitus'))
+              and
+                 now() < as_datetime(states('sensor.ford_lammitys_pois')) }}
+          - condition: state
+            entity_id: input_boolean.ford_lammitin_paalla
+            state: "on"
+        sequence:
+          - condition: device
+            type: is_off
+            device_id: 8a0fde4688ab3134ee939e17a6bd1b1f
+            entity_id: e2ac351a439b47cfa18fdfea25130c18
+            domain: switch
+          - target:
+              entity_id: switch.shellyplug_s_eafe05
+            action: switch.turn_on
+            data: {}
+      - conditions:
+          - condition: template
+            value_template: |
+              {{ now() >= as_datetime(states('sensor.ford_lammitys_pois')) }}
+          - condition: state
+            entity_id: input_boolean.ford_lammitin_paalla
+            state: "on"
 
-Create an automation that turns heater off:
-
-```yaml
-alias: Auto pois päältä
-description: ""
-triggers:
-  - trigger: time
-    at: sensor.heater_stop_time
-conditions:
-  - condition: or
-    conditions:
-      - condition: state
-        entity_id: input_boolean.only_weekdays
-        state: "off"
-      - condition: time
-        weekday:
-          - mon
-          - tue
-          - wed
-          - thu
-          - fri
-actions:
-  - type: turn_off
-    device_id: 8230786f881a0cb5c19de5507a45dd80
-    entity_id: f4f0421d354b4f28c32ef492ea565100
-    domain: switch
+        sequence:
+          - condition: device
+            type: is_on
+            device_id: 8a0fde4688ab3134ee939e17a6bd1b1f
+            entity_id: e2ac351a439b47cfa18fdfea25130c18
+            domain: switch
+          - target:
+              entity_id: switch.shellyplug_s_eafe05
+            action: switch.turn_off
+            data: {}
+    default: []
 mode: single
+
 ```
 
 Create an automation that turns the power off if there is no car plugged in or you unplug the car:
