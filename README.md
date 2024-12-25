@@ -11,17 +11,14 @@ Create a toggle helper to enable your car heater:
 ![image](https://github.com/user-attachments/assets/60ecf4d4-5038-47cd-b4bb-c0a9da18997d)
 
 
-To set up the time when the heater should begin to warm up your car, create a template helper:
-```jinja2
-{% set time_start_delta = timedelta(minutes=(state_attr('weather.forecast_koti','temperature') -10)*5.5 | int) %}
-{% set time_departure = today_at(timedelta(hours=state_attr('input_datetime.lahtoaika', 'hour'), minutes=state_attr('input_datetime.lahtoaika', 'minute'))) %}
-{% set time_start = time_start_delta + time_departure %}
-{{ time_start }}
-```
-in this `state_attr('weather.forecast_koti','temperature'` is your outside temperature in degrees of celsius.
+To set up the time when the heater should begin to warm up your car, create a template helper.
+In this `number.viimeisin_ulkolampotila` is your outside temperature in degrees of celsius.
 `input_datetime.lahtoaika` is your departure time helpers name.
-Change accordingly if needed. I use `number.viimeisin_ulkolampotila`
-Like this: if you have a temperature sensor like a ruuvitag
+
+`input_boolean.ford_vain_arkipaivisin` is a toggle helper to allow heater operate only at weekdays, so you can keep the heater automation enabled but it doesn't warm you car while you sleep during the weekends.
+
+Change accordingly if needed.
+
 ```jinja2
 {% set time_start_delta = timedelta(minutes=((states('number.viimeisin_ulkolampotila') | float) -10)*5.5 | int) %}
 {# Calculate the time delta based on the current temperature from the Ruuvitag sensor.
@@ -52,7 +49,7 @@ Key Points:
 x is the temperature (e.g., range of values like −20−20 to 4040).
 y is the time delta in minutes.
 
-After a morning when i didn't get temperature reading of the ruuvitag and it's value was "unavailable" i made a number helper (number.viimeisin_ulkolampotila) to store last known temperature. Extra added redundancy was implemented in the helper in form of few if-statements
+After one morning when i didn't get temperature reading of the ruuvitag and it's value was "unavailable" i made a number helper (number.viimeisin_ulkolampotila) to store last known temperature. Extra added redundancy was implemented in the helper in form of few if-statements
 ```jinja2
 {% if states('sensor.ruuvitag_2b8c_temperature') != 'unavailable' %}
   {# Check if the Ruuvitag sensor value is available (not 'unavailable'). #}
@@ -69,7 +66,7 @@ After a morning when i didn't get temperature reading of the ruuvitag and it's v
   {{ states('number.viimeisin_ulkolampotila') }}
 {% endif %}
 ```
-This template helper sets time for the heater to shut off, whit included 30 minutes delay if you are running late in the morning:
+This template helper sets time for the heater to shut off, with included 30 minutes delay if you are running late in the morning:
 ```jinja2
 {% set time_departure = today_at(timedelta(hours=state_attr('input_datetime.lahtoaika', 'hour'), minutes=state_attr('input_datetime.lahtoaika', 'minute'))) %}
 {% set time_offset_stop = timedelta(minutes=30) %}
@@ -78,9 +75,9 @@ This template helper sets time for the heater to shut off, whit included 30 minu
 ```
 Again, `input_datetime.lahtoaika` is your departure time helpers name.
 
-## Then few automations
+## Then the actual automations
 
-Create an automation that turns car heater on:
+Create an automation that turns car heater on and of:
 ```yaml
 alias: Ford lämmityksen hallinta
 description: Controls the heating based on start and end times.
