@@ -20,10 +20,10 @@ To set up the time when the heater should begin to warm up your car, create a te
 ```
 in this `state_attr('weather.forecast_koti','temperature'` is your outside temperature in degrees of celsius.
 `input_datetime.lahtoaika` is your departure time helpers name.
-Change accordingly if needed.
+Change accordingly if needed. I use 'number.viimeisin_ulkolampotila'
 Like this: if you have a temperature sensor like a ruuvitag
 ```jinja2
-{% set time_start_delta = timedelta(minutes=((states('sensor.ruuvitag_2b8c_temperature') | float) -10)*5.5 | int) %}
+{% set time_start_delta = timedelta(minutes=((states('number.viimeisin_ulkolampotila') | float) -10)*5.5 | int) %}
 {# Calculate the time delta based on the current temperature from the Ruuvitag sensor.
    - Convert the sensor value to a float.
    - Subtract 10 from the temperature.
@@ -44,6 +44,14 @@ Like this: if you have a temperature sensor like a ruuvitag
 {# Output the calculated start time. #}
 
 ```
+So:
+Let y represent time_start_delta in minutes, and x represent the temperature (states('number.viimeisin_ulkolampotila')).
+y=(x−10)⋅5.5
+y=(x−10)⋅5.5
+Key Points:
+x is the temperature (e.g., range of values like −20−20 to 4040).
+y is the time delta in minutes.
+
 After a morning when i didn't get temperature reading of the ruuvitag and it's value was "unavailable" i made a number helper (number.viimeisin_ulkolampotila) to store last known temperature. Extra added redundancy was implemented in the helper in form of few if-statements
 ```jinja2
 {% if states('sensor.ruuvitag_2b8c_temperature') != 'unavailable' %}
