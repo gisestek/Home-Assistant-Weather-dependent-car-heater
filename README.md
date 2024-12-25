@@ -24,17 +24,40 @@ Change accordingly if needed.
 Like this: if you have a temperature sensor like a ruuvitag
 ```jinja2
 {% set time_start_delta = timedelta(minutes=((states('sensor.ruuvitag_2b8c_temperature') | float) -10)*5.5 | int) %}
+{# Calculate the time delta based on the current temperature from the Ruuvitag sensor.
+   - Convert the sensor value to a float.
+   - Subtract 10 from the temperature.
+   - Multiply the result by 5.5 to calculate the offset in minutes.
+   - Cast the result to an integer to ensure it's a valid input for timedelta.
+   - Create a timedelta object with the calculated number of minutes. #}
+
 {% set time_departure = today_at(timedelta(hours=state_attr('input_datetime.lahtoaika', 'hour'), minutes=state_attr('input_datetime.lahtoaika', 'minute'))) %}
+{# Determine the departure time by retrieving the hours and minutes from the input_datetime entity `lahtoaika`.
+   - Use `today_at()` to create a datetime object for today with the given hour and minute attributes.
+   - This represents the scheduled departure time for today. #}
+
 {% set time_start = time_start_delta + time_departure %}
+{# Add the calculated time delta to the departure time to determine the start time.
+   - This represents when the process (e.g., preheating) should start. #}
+
 {{ time_start }}
+{# Output the calculated start time. #}
+
 ```
 After a morning when i didn't get temperature reading of the ruuvitag and it's value was "unavailable" i made a number helper (number.viimeisin_ulkolampotila) to store last known temperature. Extra added redundancy was implemented in the helper in form of few if-statements
 ```jinja2
 {% if states('sensor.ruuvitag_2b8c_temperature') != 'unavailable' %}
+  {# Check if the Ruuvitag sensor value is available (not 'unavailable'). #}
   {{ states('sensor.ruuvitag_2b8c_temperature') }}
+  {# If available, use the temperature value from the Ruuvitag sensor. #}
 {% elif state_attr('weather.forecast_koti', 'temperature') is not none %}
+  {# If the Ruuvitag sensor value is unavailable, check if the temperature attribute 
+      of the weather forecast entity ('weather.forecast_koti') is not None. #}
   {{ state_attr('weather.forecast_koti', 'temperature') }}
+  {# If it's not None, use the temperature from the weather forecast entity. #}
 {% else %}
+  {# If neither the Ruuvitag sensor nor the weather forecast entity provides a usable value, 
+      fall back to the value of 'number.viimeisin_ulkolampotila'. #}
   {{ states('number.viimeisin_ulkolampotila') }}
 {% endif %}
 ```
