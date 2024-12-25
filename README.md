@@ -28,8 +28,16 @@ Like this: if you have a temperature sensor like a ruuvitag
 {% set time_start = time_start_delta + time_departure %}
 {{ time_start }}
 ```
-
-
+After a morning when i didn't get temperature reading of the ruuvitag and it's value was "unavailable" i made a number helper (number.viimeisin_ulkolampotila) to store last known temperature. Extra added redundancy was implemented in the helper in form of few if-statements
+```jinja2
+{% if states('sensor.ruuvitag_2b8c_temperature') != 'unavailable' %}
+  {{ states('sensor.ruuvitag_2b8c_temperature') }}
+{% elif state_attr('weather.forecast_koti', 'temperature') is not none %}
+  {{ state_attr('weather.forecast_koti', 'temperature') }}
+{% else %}
+  {{ states('number.viimeisin_ulkolampotila') }}
+{% endif %}
+```
 This template helper sets time for the heater to shut off, whit included 30 minutes delay if you are running late in the morning:
 ```jinja2
 {% set time_departure = today_at(timedelta(hours=state_attr('input_datetime.lahtoaika', 'hour'), minutes=state_attr('input_datetime.lahtoaika', 'minute'))) %}
