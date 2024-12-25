@@ -20,7 +20,7 @@ To set up the time when the heater should begin to warm up your car, create a te
 ```
 in this `state_attr('weather.forecast_koti','temperature'` is your outside temperature in degrees of celsius.
 `input_datetime.lahtoaika` is your departure time helpers name.
-Change accordingly if needed. I use 'number.viimeisin_ulkolampotila'
+Change accordingly if needed. I use `number.viimeisin_ulkolampotila`
 Like this: if you have a temperature sensor like a ruuvitag
 ```jinja2
 {% set time_start_delta = timedelta(minutes=((states('number.viimeisin_ulkolampotila') | float) -10)*5.5 | int) %}
